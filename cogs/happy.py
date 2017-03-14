@@ -3,6 +3,8 @@ from discord.ext import commands
 import random
 
 class Happy():
+	"""For people who need cheering up."""
+	
 	def __init__(self, bot):
 		self.bot = bot
 		
