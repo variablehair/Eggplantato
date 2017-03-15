@@ -1,7 +1,9 @@
 import discord
 from discord.ext import commands
 import random
-from cogs.utils import checks
+from cogs.utils import checks, errors
+import sqlite3
+import os.path
 
 description = '''Desu.'''
 bot = commands.Bot(command_prefix='hey ep ', description=description)
@@ -25,35 +27,30 @@ async def load(ctx, ext_name : str):
 	"""Loads a cog"""
 	try:
 		bot.load_extension(cogs_location + ext_name)
+	except errors.DatabaseError as e:
+		await ctx.send(str(e))
 	except (AttributeError, ImportError) as e:
 		await ctx.send("```py\n{}: {}\n```".format(type(e).__name__, str(e)))
 		return
-	await ctx.send("{} loaded.".format(ext_name))
+	if ctx.invoked_with != "reload":
+		await ctx.send("{} loaded.".format(ext_name))
 	
 @bot.command()
 @checks.is_owner()
 async def unload(ctx, ext_name : str):
 	"""Unloads a cog"""
 	bot.unload_extension(cogs_location + ext_name)
-	await ctx.send("{} unloaded.".format(ext_name))
+	if ctx.invoked_with != "reload":
+		await ctx.send("{} unloaded.".format(ext_name))
 	
 @bot.command(name='reload')
 @checks.is_owner()
 async def _reload(ctx, ext_name : str):
 	"""Reloads a cog"""
-	bot.unload_extension(cogs_location + ext_name)
-	try:
-		bot.load_extension(cogs_location + ext_name)
-	except (AttributeError, ImportError) as e:
-		await ctx.send("```py\n{}: {}\n```".format(type(e).__name__, str(e)))
-		return
-	await ctx.send("{} reloaded successfully.".format(ext_name))
-	
-@bot.command(name="context")
-async def send_context(ctx):
-	await ctx.send(ctx.message.author.id)
-	await ctx.send(str(ctx.message.author))
-	
+	ctx.invoke(unload, ctx, ext_name)
+	ctx.invoke(load, ctx, ext_name)
+	await ctx.send("{} reloaded.".format(ext_name))
+		
 @bot.command()
 async def add(ctx, left: int, right: int):
 	"""Adds two numbers together."""
@@ -87,18 +84,20 @@ async def joined(ctx, member: discord.Member):
 	"""Says when a member joined."""
 	await ctx.send('{0.name} joined in {0.joined_at}'.format(member))
 
-@bot.group()
-async def cool(ctx):
-	"""Says if a user is cool.
-
-	In reality this just checks if a subcommand is being invoked.
-	"""
-	if ctx.invoked_subcommand is None:
-		await ctx.send('No, {0.subcommand_passed} is not cool'.format(ctx))
-
-@cool.command(name='bot')
-async def _bot(ctx):
-	"""Is the bot cool?"""
-	await ctx.send('Yes, the bot is cool.')
+@bot.command()
+@checks.is_owner()
+async def initdb(ctx):
+	"""Initialize all database objects for the bot. #TODO: make the function take subcommands so only certain cogs are initialized rather than all of them."""
+	#create todo list
+	if os.path.exists("data/todo.db"):
+		await ctx.send('Todo database already exists at \"data/todo.db\"!')
+	else:
+		conn = sqlite3.connect('data/todo.db')
+		c = conn.cursor()
+		c.execute("CREATE TABLE lists (user TEXT, tasks TEXT)")
+		c.execute("INSERT INTO lists VALUES ('debug', '[]')")
+		conn.commit()
+		conn.close()
+		await ctx.send('Todo database created successfully.')
 
 bot.run('Mjg2Nzk3NzU2Mjg1MzIxMjE3.C6PpLw.FrSoTKaTNci_bIhJivviwTpB4Dg')

@@ -1,12 +1,21 @@
 import discord
 from discord.ext import commands
 import sqlite3
+from cogs.utils import errors
 
 class Productivity():
 	"""Tools to make your life easier (?)"""
 	
 	def __init__(self, bot):
 		self.bot = bot
+		self.todoconn = sqlite3.connect('data/todo.db')
+		try:
+			c = self.todoconn.cursor()
+			c.execute("SELECT name FROM lists WHERE name='debug'")
+		except sqlite3.OperationalError:
+			raise errors.DatabaseError("Error loading todo database, did you run initdb?")
+		finally:
+			self.todoconn.close()
 		
 	@commands.group(pass_context=True, invoke_without_context=True)
 	async def todo(self, ctx):

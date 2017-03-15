@@ -11,6 +11,15 @@ class Happy():
 	@commands.command()
 	async def happy(self, ctx):
 		await ctx.send("Fuck you uwu")
+	
+	@commands.command()
+	async def debug1(self, ctx):
+		await ctx.send("debug1 context = " + str(ctx.invoked_with) + " " + str(dir(ctx.message)))
+		await ctx.invoke(self.debug2)
+	
+	@commands.command()
+	async def debug2(self, ctx):
+		await ctx.send("debug2 context = " + str(ctx.invoked_with) + " " + str(dir(ctx.message)))
 		
 	@commands.command(name="8ball", aliases=["8?", "8"])
 	async def _8ball(self, ctx, *, query : str):
