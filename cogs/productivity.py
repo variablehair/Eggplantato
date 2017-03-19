@@ -55,7 +55,7 @@ class Productivity():
 			tup_data = c.fetchone()
 			str_task = " ".join(args)
 			if tup_data is None:
-				c.execute("INSERT INTO lists VALUES (?,?)", (str(ctx.message.author.id), "[" + str_task + "]"))
+				c.execute("INSERT INTO lists VALUES (?,?)", (str(ctx.message.author.id), "[\'" + str_task + "\']"))
 			else:
 				list_user_tasks = literal_eval(tup_data[0])
 				list_user_tasks.append(str_task)
