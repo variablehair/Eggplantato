@@ -9,3 +9,9 @@ docs/_build
 *.png
 *.jpg
 *.flac
+
+# Eggplantato database files
+*.db
+
+#Eggplantato defaults file
+defaults.py

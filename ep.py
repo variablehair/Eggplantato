@@ -4,15 +4,11 @@ import random
 from cogs.utils import checks, errors
 import sqlite3
 import os.path
+from defaults import ep_token
 
 description = '''Desu.'''
 bot = commands.Bot(command_prefix='hey ep ', description=description)
-
-#specifies the folder that contains the cogs
 cogs_location = "cogs."
-
-#specifies cogs to be loaded by default
-
 
 @bot.event
 async def on_ready():
@@ -47,8 +43,8 @@ async def unload(ctx, ext_name : str):
 @checks.is_owner()
 async def _reload(ctx, ext_name : str):
 	"""Reloads a cog"""
-	ctx.invoke(unload, ctx, ext_name)
-	ctx.invoke(load, ctx, ext_name)
+	await ctx.invoke(unload, ext_name)
+	await ctx.invoke(load, ext_name)
 	await ctx.send("{} reloaded.".format(ext_name))
 		
 @bot.command()
@@ -67,17 +63,6 @@ async def roll(ctx, dice: str):
 
 	result = ', '.join(str(random.randint(1, limit)) for r in range(rolls))
 	await ctx.send(result)
-
-@bot.command(description='For when you wanna settle the score some other way')
-async def choose(ctx, *choices: str):
-	"""Chooses between multiple choices."""
-	await ctx.send(random.choice(choices))
-
-@bot.command()
-async def repeat(ctx, times: int, content='repeating...'):
-	"""Repeats a message multiple times."""
-	for i in range(times):
-		await ctx.send(content)
 
 @bot.command()
 async def joined(ctx, member: discord.Member):
@@ -100,4 +85,4 @@ async def initdb(ctx):
 		conn.close()
 		await ctx.send('Todo database created successfully.')
 
-bot.run('Mjg2Nzk3NzU2Mjg1MzIxMjE3.C6PpLw.FrSoTKaTNci_bIhJivviwTpB4Dg')
+bot.run(ep_token)
