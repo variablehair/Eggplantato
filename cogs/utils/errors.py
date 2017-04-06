@@ -2,3 +2,6 @@
 
 class DatabaseError(Exception):
 	pass
+	
+class SpotifyError(Exception):
+	pass
